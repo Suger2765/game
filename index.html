@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星图物语 · 星座探索</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="canvas"></canvas>
+    <div id="ui">
+      <div id="title-screen">
+        <h1>✦ 星图物语 ✦</h1>
+        <p class="subtitle">在星河深处，寻找失落的传说</p>
+        <p class="hint">点击任意处 踏入星空</p>
+      </div>
+      <div id="hud">
+        <div id="constellation-name"></div>
+        <div id="progress">
+          <span id="progress-text">0 / 0 已完成</span>
+          <div id="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+      </div>
+      <div id="story-card" class="hidden">
+        <div id="card-close">✕</div>
+        <div id="card-scroll">
+          <div id="card-star-name"></div>
+          <div id="card-star-facts"></div>
+          <div id="card-divider"></div>
+          <div id="card-myth-tabs"></div>
+          <div id="card-myth-content"></div>
+          <div id="card-science"></div>
+        </div>
+      </div>
+      <div id="constellation-complete" class="hidden">
+        <h2 id="complete-title"></h2>
+        <p id="complete-story"></p>
+        <p class="hint">点击继续旅行</p>
+      </div>
+      <div id="tonight-panel">
+        <button id="tonight-btn">🌙 今夜可见</button>
+        <div id="tonight-list" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
