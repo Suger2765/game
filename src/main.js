@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { stars, starMap } from './data/stars.js';
 import { constellations } from './data/constellations.js';
 import { StarField } from './scene/StarField.js';
@@ -57,8 +58,16 @@ controls.rotateSpeed = 0.3;
 controls.minDistance = 200;
 controls.maxDistance = 1200;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.3;
+controls.autoRotateSpeed = 0.5;
 controls.target.set(0, 0, 0);
+
+// CSS2D renderer for labels
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+document.getElementById('app').appendChild(labelRenderer.domElement);
 
 // ── Modules ──
 const starField = new StarField(scene, camera);
@@ -66,9 +75,28 @@ const constellationLines = new ConstellationLines(scene);
 const effects = new Effects(renderer, scene, camera);
 const storyCard = new StoryCard();
 
+// ── Constellation Labels ──
+const labelGroup = new THREE.Group();
+scene.add(labelGroup);
+const labelStyle = 'color:rgba(200,215,245,0.5);font-size:11px;font-family:"Noto Serif SC",serif;letter-spacing:0.1em;text-shadow:0 0 20px rgba(100,150,255,0.3);pointer-events:none;white-space:nowrap;';
+for (const con of constellations) {
+  if (!con.stars || con.stars.length === 0 || con.myths === undefined) continue;
+  const mid = Math.floor(con.stars.length / 2);
+  const si = con.stars[mid];
+  if (si >= stars.length) continue;
+  const pos = starField.getStarPosition(si);
+  const div = document.createElement('div');
+  div.textContent = con.nameCn;
+  div.style.cssText = labelStyle;
+  const label = new CSS2DObject(div);
+  label.position.copy(pos);
+  label.position.multiplyScalar(1.1);
+  labelGroup.add(label);
+}
+
 // ── Interaction ──
 const raycaster = new THREE.Raycaster();
-raycaster.params.Points = { threshold: 15 };
+raycaster.params.Points = { threshold: 25 };
 const pointer = new THREE.Vector2();
 
 function getIntersection(event) {
@@ -76,15 +104,11 @@ function getIntersection(event) {
   pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObject(starField.mesh);
+  const intersects = raycaster.intersectObject(starField.mainMesh);
   return intersects.length > 0 ? intersects[0] : null;
 }
 
-function onPointerDown(event) {
-  if (state.phase === 'title') {
-    startGame();
-    return;
-  }
+function onCanvasClick(event) {
   if (state.phase === 'complete') {
     hideCompletion();
     return;
@@ -101,14 +125,33 @@ function onPointerDown(event) {
   }
 }
 
-canvas.addEventListener('pointerdown', onPointerDown);
+// Cursor hover feedback
+canvas.addEventListener('pointermove', (e) => {
+  if (state.phase !== 'explore') return;
+  const hit = getIntersection(e);
+  canvas.style.cursor = hit ? 'pointer' : 'default';
+});
+
+// Title screen click (separate from canvas to avoid overlay blocking)
+document.getElementById('title-screen').addEventListener('click', (e) => {
+  if (state.phase === 'title') startGame();
+});
+
+// Canvas interaction
+canvas.addEventListener('click', onCanvasClick);
+// Also handle touch for mobile
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  onCanvasClick({ clientX: touch.clientX, clientY: touch.clientY });
+}, { passive: false });
 
 // ── Game Flow ──
 function startGame() {
   state.phase = 'explore';
   document.getElementById('title-screen').classList.add('hidden');
   document.getElementById('hud').classList.add('visible');
-  controls.autoRotate = false;
+  controls.autoRotate = true;
   // Check user location
   getUserLocation().then(loc => {
     state.userLocation = loc;
@@ -240,6 +283,20 @@ function updateTonightList() {
   }
 }
 
+// ── Help Toggle ──
+document.getElementById('help-btn').addEventListener('click', () => {
+  const overlay = document.getElementById('help-overlay');
+  overlay.classList.toggle('hidden');
+});
+document.getElementById('help-close').addEventListener('click', () => {
+  document.getElementById('help-overlay').classList.add('hidden');
+});
+document.getElementById('help-overlay').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) {
+    document.getElementById('help-overlay').classList.add('hidden');
+  }
+});
+
 // ── Resize ──
 window.addEventListener('resize', () => {
   const w = window.innerWidth;
@@ -247,6 +304,7 @@ window.addEventListener('resize', () => {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  labelRenderer.setSize(w, h);
   effects.resize(w, h);
 });
 
@@ -259,6 +317,7 @@ function animate(time) {
   constellationLines.update(time);
 
   effects.render();
+  labelRenderer.render(scene, camera);
 }
 
 animate(0);
@@ -268,5 +327,5 @@ window.addEventListener('beforeunload', () => {
   starField.dispose();
   constellationLines.dispose();
   effects.dispose();
-  canvas.removeEventListener('pointerdown', onPointerDown);
+  canvas.removeEventListener('click', onCanvasClick);
 });

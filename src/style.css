@@ -249,6 +249,73 @@ body {
   letter-spacing: 0.05em;
 }
 
+/* Help Button & Overlay */
+#help-btn {
+  position: fixed; top: 20px; right: 20px;
+  z-index: 40;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(8,10,35,0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(130,160,255,0.15);
+  color: rgba(200,215,245,0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+#help-btn:hover {
+  background: rgba(130,160,255,0.15);
+  border-color: rgba(130,160,255,0.3);
+  color: #b0c8ff;
+}
+
+#help-overlay {
+  position: fixed; inset: 0;
+  z-index: 90;
+  background: rgba(5,7,25,0.92);
+  backdrop-filter: blur(24px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+  transition: opacity 0.5s ease;
+  overflow-y: auto;
+}
+#help-overlay.hidden { opacity: 0; pointer-events: none; }
+#help-close {
+  position: absolute; top: 20px; right: 24px;
+  cursor: pointer; font-size: 1.5rem;
+  color: rgba(180,195,230,0.5);
+  transition: color 0.2s;
+  z-index: 2;
+}
+#help-close:hover { color: rgba(255,255,255,0.8); }
+#help-overlay h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.8rem;
+  color: #f0e8d0;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 30px rgba(100,150,255,0.2);
+}
+.help-section {
+  max-width: 520px;
+  margin-bottom: 1.2rem;
+}
+.help-section h3 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.1rem;
+  color: rgba(200,215,245,0.9);
+  margin-bottom: 0.3rem;
+}
+.help-section p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgba(180,195,230,0.7);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   #story-card { padding: 20px; max-height: 50vh; width: 92vw; }

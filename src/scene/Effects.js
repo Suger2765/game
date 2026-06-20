@@ -16,45 +16,35 @@ export class Effects {
 
   build() {
     this.composer = new EffectComposer(this.renderer);
-    
+
     const renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
-    // Bloom for star glow
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.6,    // strength
-      0.4,    // radius
-      0.1     // threshold
+      0.4,    // strength
+      0.8,    // radius
+      0.05    // threshold
     );
     this.composer.addPass(this.bloomPass);
 
-    // Output pass
     const outputPass = new OutputPass();
     this.composer.addPass(outputPass);
   }
 
   setBloomStrength(strength) {
-    if (this.bloomPass) {
-      this.bloomPass.strength = strength;
-    }
+    if (this.bloomPass) this.bloomPass.strength = strength;
   }
 
   resize(width, height) {
-    if (this.composer) {
-      this.composer.setSize(width, height);
-    }
+    if (this.composer) this.composer.setSize(width, height);
   }
 
   render() {
-    if (this.composer) {
-      this.composer.render();
-    }
+    if (this.composer) this.composer.render();
   }
 
   dispose() {
-    if (this.composer) {
-      this.composer.dispose();
-    }
+    if (this.composer) this.composer.dispose();
   }
 }

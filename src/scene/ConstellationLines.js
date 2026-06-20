@@ -3,7 +3,7 @@ import { constellations } from '../data/constellations.js';
 import { stars } from '../data/stars.js';
 import { eqToCart } from '../data/skycalc.js';
 
-const RADIUS = 500;
+const RADIUS = 400;
 const GLOW_COLOR = new THREE.Color(0.5, 0.6, 1.0);
 
 export class ConstellationLines {
